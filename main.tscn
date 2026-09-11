@@ -1,8 +1,14 @@
-[gd_scene load_steps=2 format=3 uid="uid://l6t7e2jk76el"]
+[gd_scene load_steps=3 format=3 uid="uid://l6t7e2jk76el"]
 
 [ext_resource type="PackedScene" path="res://player/Player.tscn" id="1_player"]
+[ext_resource type="Script" path="res://main.gd" id="2_main"]
 
 [node name="Node2D" type="Node2D" unique_id=1630127435]
+script = ExtResource("2_main")
 
 [node name="Player" parent="." instance=ExtResource("1_player")]
 position = Vector2(640, 360)
+
+[node name="Opportunity" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(24, 0, 20.7846, 12, 12, 20.7846, 0, 24, -12, 20.7846, -20.7846, 12, -24, 0, -20.7846, -12, -12, -20.7846, 0, -24, 12, -20.7846, 20.7846, -12)
+color = Color(1, 0.76, 0.12, 1)
