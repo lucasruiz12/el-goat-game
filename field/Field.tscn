@@ -12,8 +12,16 @@ script = ExtResource("1_field")
 
 [node name="MidfieldLine" type="Line2D" parent="."]
 
-[node name="ThreeQuarterLine" type="Line2D" parent="."]
+[node name="CenterCircle" type="Line2D" parent="."]
 
 [node name="PenaltyArea" type="Line2D" parent="."]
 
+[node name="PenaltyArc" type="Line2D" parent="."]
+
+[node name="PenaltySpot" type="Polygon2D" parent="."]
+
 [node name="RivalGoal" type="Line2D" parent="."]
+
+[node name="GoalArea" type="Line2D" parent="."]
+
+[node name="CenterSpot" type="Polygon2D" parent="."]

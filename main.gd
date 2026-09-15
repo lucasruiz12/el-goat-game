@@ -1,64 +1,64 @@
 extends Node2D
 
-const FieldScript = preload("res://field/field.gd")
+## Main coordina una situacion de desmarque acotada. El tiempo restante se actualiza
+## solo mientras la situacion esta activa y la ProgressBar muestra la misma fraccion,
+## sin crear un sistema de UI general. La evaluacion provisional vive en una funcion
+## aislada para poder reemplazarla luego por criterios tacticos mas completos.
 
-## Main compone los elementos principales del prototipo y coordina el loop de
-## oportunidades. Field concentra las dimensiones y referencias espaciales de cancha,
-## por lo que este nodo solo le solicita las posiciones que necesita para el gameplay.
+@export_category("Off-ball tuning")
+@export var off_ball_duration := 2.0
+@export var restart_interval := 0.75
+@export var teammate_start_position := Vector2(560.0, 450.0)
+@export var player_start_position := Vector2(640.0, 540.0)
+@export var provisional_forward_gain := 80.0
 
-const GRID_COLUMNS := 4
-const GRID_ROWS := 3
-const VALID_ZONE_INDICES := [1, 2, 5, 6]
-const OPPORTUNITY_RADIUS := 24.0
-const PLAYER_RADIUS := 16.0
-const ZONE_MARGIN := 32.0
-const FEEDBACK_DURATION := 0.25
-const OPPORTUNITY_COLOR := Color(1.0, 0.76, 0.12)
-const REACHED_COLOR := Color(0.3, 1.0, 0.5)
+const PLAYER_COLOR := Color(0.2, 0.75, 1.0)
+const SUCCESS_COLOR := Color(0.3, 1.0, 0.5)
+const FAILURE_COLOR := Color(1.0, 0.35, 0.3)
 
 @onready var player: CharacterBody2D = $Player
-@onready var field: FieldScript = $Field
-@onready var opportunity: Polygon2D = $Opportunity
+@onready var player_visual: Polygon2D = $Player/Visual
+@onready var teammate: Polygon2D = $Teammate
+@onready var off_ball_timer: ProgressBar = $Hud/OffBallTimer
 
-var random_number_generator := RandomNumberGenerator.new()
-var is_resolving_opportunity := false
-var current_zone_index := -1
+var remaining_time := 0.0
+var is_off_ball_active := false
 
 
 func _ready() -> void:
-	random_number_generator.randomize()
-	place_next_opportunity()
+	teammate.global_position = teammate_start_position
+	off_ball_timer.max_value = off_ball_duration
+	start_off_ball_situation()
 
 
-func _process(_delta: float) -> void:
-	if is_resolving_opportunity:
+func _process(delta: float) -> void:
+	if not is_off_ball_active:
 		return
 
-	if player.global_position.distance_to(opportunity.global_position) <= PLAYER_RADIUS + OPPORTUNITY_RADIUS:
-		resolve_opportunity()
+	remaining_time = maxf(remaining_time - delta, 0.0)
+	off_ball_timer.value = remaining_time
+	if is_zero_approx(remaining_time):
+		finish_off_ball_situation()
 
 
-func resolve_opportunity() -> void:
-	is_resolving_opportunity = true
-	opportunity.color = REACHED_COLOR
-	await get_tree().create_timer(FEEDBACK_DURATION).timeout
-	place_next_opportunity()
-	is_resolving_opportunity = false
+func start_off_ball_situation() -> void:
+	player.global_position = player_start_position
+	player.velocity = Vector2.ZERO
+	player.set_physics_process(true)
+	player_visual.color = PLAYER_COLOR
+	remaining_time = off_ball_duration
+	off_ball_timer.value = remaining_time
+	is_off_ball_active = true
 
 
-func place_next_opportunity() -> void:
-	var zone_index: int = VALID_ZONE_INDICES[random_number_generator.randi_range(0, VALID_ZONE_INDICES.size() - 1)]
-	while zone_index == current_zone_index:
-		zone_index = VALID_ZONE_INDICES[random_number_generator.randi_range(0, VALID_ZONE_INDICES.size() - 1)]
-	var column := zone_index % GRID_COLUMNS
-	var row := zone_index / GRID_COLUMNS
-	var zone_rect := field.get_grid_cell_rect(GRID_COLUMNS, GRID_ROWS, column, row)
-	var horizontal_margin := minf(ZONE_MARGIN, zone_rect.size.x * 0.5 - OPPORTUNITY_RADIUS)
-	var vertical_margin := minf(ZONE_MARGIN, zone_rect.size.y * 0.5 - OPPORTUNITY_RADIUS)
+func finish_off_ball_situation() -> void:
+	is_off_ball_active = false
+	player.set_physics_process(false)
+	player.velocity = Vector2.ZERO
+	player_visual.color = SUCCESS_COLOR if evaluate_off_ball_position_provisional() else FAILURE_COLOR
+	await get_tree().create_timer(restart_interval).timeout
+	start_off_ball_situation()
 
-	opportunity.global_position = Vector2(
-		random_number_generator.randf_range(zone_rect.position.x + OPPORTUNITY_RADIUS + horizontal_margin, zone_rect.end.x - OPPORTUNITY_RADIUS - horizontal_margin),
-		random_number_generator.randf_range(zone_rect.position.y + OPPORTUNITY_RADIUS + vertical_margin, zone_rect.end.y - OPPORTUNITY_RADIUS - vertical_margin)
-	)
-	opportunity.color = OPPORTUNITY_COLOR
-	current_zone_index = zone_index
+
+func evaluate_off_ball_position_provisional() -> bool:
+	return player.global_position.y <= teammate.global_position.y - provisional_forward_gain
