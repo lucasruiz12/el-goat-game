@@ -1,15 +1,21 @@
-[gd_scene load_steps=3 format=3 uid="uid://l6t7e2jk76el"]
+[gd_scene load_steps=4 format=3 uid="uid://l6t7e2jk76el"]
 
 [ext_resource type="PackedScene" path="res://player/Player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://main.gd" id="2_main"]
+[ext_resource type="PackedScene" path="res://field/Field.tscn" id="3_field"]
 
 [node name="Node2D" type="Node2D" unique_id=1630127435]
 script = ExtResource("2_main")
 
-[node name="Field" type="Polygon2D" parent="."]
+[node name="Field" parent="." instance=ExtResource("3_field")]
 
 [node name="Player" parent="." instance=ExtResource("1_player")]
 position = Vector2(640, 360)
+
+[node name="Teammate" type="Polygon2D" parent="."]
+position = Vector2(560, 450)
+polygon = PackedVector2Array(-14, -14, 14, -14, 14, 14, -14, 14)
+color = Color(0.95, 0.35, 0.3, 1)
 
 [node name="Opportunity" type="Polygon2D" parent="."]
 polygon = PackedVector2Array(24, 0, 20.7846, 12, 12, 20.7846, 0, 24, -12, 20.7846, -20.7846, 12, -24, 0, -20.7846, -12, -12, -20.7846, 0, -24, 12, -20.7846, 20.7846, -12)
