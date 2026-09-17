@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="EL GOAT"
-run/main_scene="uid://l6t7e2jk76el"
+run/main_scene="res://home/Home.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 

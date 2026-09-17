@@ -45,6 +45,13 @@ func get_field_rect() -> Rect2:
 	return Rect2(global_position, field_size)
 
 
+func get_relative_rect(normalized_rect: Rect2) -> Rect2:
+	return Rect2(
+		global_position + normalized_rect.position * field_size,
+		normalized_rect.size * field_size,
+	)
+
+
 func get_midfield_line_y() -> float:
 	return global_position.y + field_size.y
 

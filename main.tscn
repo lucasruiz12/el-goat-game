@@ -1,8 +1,10 @@
-[gd_scene format=3 uid="uid://l6t7e2jk76el"]
+[gd_scene load_steps=6 format=3 uid="uid://l6t7e2jk76el"]
 
 [ext_resource type="PackedScene" path="res://player/Player.tscn" id="1_player"]
 [ext_resource type="Script" uid="uid://cihh5v0cyh5tt" path="res://main.gd" id="2_main"]
 [ext_resource type="PackedScene" path="res://field/Field.tscn" id="3_field"]
+[ext_resource type="PackedScene" path="res://rival/Rival.tscn" id="4_rival"]
+[ext_resource type="PackedScene" path="res://ball/Ball.tscn" id="5_ball"]
 
 [node name="Node2D" type="Node2D" unique_id=1630127435]
 script = ExtResource("2_main")
@@ -17,7 +19,28 @@ position = Vector2(560, 450)
 color = Color(0.95, 0.35, 0.3, 1)
 polygon = PackedVector2Array(-14, -14, 14, -14, 14, 14, -14, 14)
 
+[node name="Rival" parent="." instance=ExtResource("4_rival")]
+
+[node name="Ball" parent="." instance=ExtResource("5_ball")]
+
 [node name="Hud" type="CanvasLayer" parent="." unique_id=454082695]
+
+[node name="LevelCompleteLabel" type="Label" parent="Hud"]
+
+layout_mode = 0
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -250.0
+offset_top = -70.0
+offset_right = 250.0
+offset_bottom = 10.0
+text = "¡NIVEL COMPLETADO!"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 42
+visible = false
 
 [node name="OffBallTimer" type="ProgressBar" parent="Hud" unique_id=1837911502]
 offset_left = 64.0
