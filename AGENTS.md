@@ -174,6 +174,20 @@ After completing a task, report the test status explicitly:
 
 ---
 
+## Behavioral Purpose of New Mechanics
+
+Every new role or mechanic must have an explicit functional purpose and an observable behavior that distinguishes it from existing mechanics.
+
+Define the behavior, target and acceptance criteria before implementation.
+
+Code structure or successful compilation alone does not prove behavioral correctness.
+
+Prefer deterministic tests for logic and one focused manual validation for new behavior.
+
+Do not repeat previously completed validations unless the relevant behavior changed.
+
+---
+
 ## Localization
 
 Design user-facing text with future localization in mind from the beginning.

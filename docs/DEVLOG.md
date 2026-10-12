@@ -1,5 +1,12 @@
 # Devlog
 
+## 2026-10-12 — T2: roles de rivales (presión y cobertura)
+
+- `rival.gd` incorpora el enum `Role` (`PRESSURE`, `COVERAGE`) y `apply_coverage()`. Tras los ajustes pedidos por el desarrollador, `COVERAGE` defiende la zona entre la amenaza de la jugada —punto medio entre el jugador y la pelota— y el arco rival: se mantiene a `COVERAGE_DISTANCE` (150 px) de esa amenaza pero siempre del lado del arco (centro del arco consultado a `Field`), sin perseguir ni copiar el movimiento del jugador. `PRESSURE` conserva la persecución directa original. Queda anotado como rol futuro `PASS_LANE` (interceptar el pase compañero–jugador), sin implementar.
+- `main.gd` asigna roles al instanciar (primer rival `PRESSURE`, resto `COVERAGE`) como asignación local mínima, todavía sin configuración por situación, y elige el objetivo según el rol al aplicar presión.
+- La Situación 1 sigue con `rival_count = 1` y un rival `PRESSURE`: comportamiento sin cambios.
+- Pruebas: `tests/test_rival.gd` cubre el rol por defecto, el movimiento de ambos roles, el cálculo puro del punto de cobertura (incluido el recorte en el arco y el caso de jugador y pelota desplazados a lados distintos) y que ambos roles terminan en objetivos distintos (suite en 41 comprobaciones; corrige el conteo de 37 informado en el ajuste anterior, que omitía una comprobación). Todavía sin ejecutar: pendiente la corrida local y la prueba manual del desarrollador (con `rival_count = 2` temporal).
+
 ## 2026-10-12 — Punto de reanudación previo a compactación
 
 - Commiteado por el desarrollador: infraestructura de pruebas (runner con descubrimiento automático y timeout genérico, `tests/run_tests.ps1`, `docs/TESTING.md`, tarea de VS Code) y sus archivos `.uid`.

@@ -94,6 +94,9 @@ func spawn_rivals() -> void:
 
 	for _index in amount:
 		var rival: RivalScript = RivalScene.instantiate()
+		# Asignación local de roles para probar T2: presiona el primero y cubren
+		# el resto. Todavía no proviene de la SituationDefinition.
+		rival.role = RivalScript.Role.PRESSURE if _index == 0 else RivalScript.Role.COVERAGE
 		add_child(rival)
 		rivals.append(rival)
 
@@ -190,7 +193,20 @@ func update_ball_outside_timer(delta: float) -> void:
 
 func apply_rival_pressure(target_position: Vector2, delta: float) -> void:
 	for rival in rivals:
-		rival.apply_pressure(target_position, rival_speed, delta)
+		if rival.role == RivalScript.Role.COVERAGE:
+			# COVERAGE defiende la zona entre la amenaza de la jugada (punto
+			# medio entre jugador y pelota) y el arco rival. El centro del arco
+			# se consulta a Field (arriba, y = 0 del campo); así el objetivo no
+			# copia el movimiento del jugador y siempre queda del lado del arco.
+			rival.apply_coverage(
+				player.global_position,
+				ball.global_position,
+				field.get_rival_goal_center(),
+				rival_speed,
+				delta,
+			)
+		else:
+			rival.apply_pressure(target_position, rival_speed, delta)
 
 
 func place_initial_positions() -> void:

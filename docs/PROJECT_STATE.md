@@ -2,11 +2,10 @@
 
 Auditoría: 2026-10-12. Describe lo inspeccionado en código; no sustituye una prueba manual de gameplay. El detalle de las pruebas automatizadas vive en `docs/TESTING.md`; el historial de cambios, en `docs/DEVLOG.md`.
 
-## Estado de Git (2026-10-12, previo a compactación de sesión)
+## Estado de Git (2026-10-12)
 
-- Rama: `master`. `HEAD`: `7c44d69 uid tests`.
-- Confirmado en commits: extracción del compañero e infraestructura de pruebas completa (runner con descubrimiento automático y timeout genérico, `tests/run_tests.ps1`, `docs/TESTING.md`, tarea de VS Code).
-- Sin commitear en el worktree (T1, pendiente de validación y commit): `main.gd`, `main.tscn`, `situation_definition.gd`, `situation_catalog.gd`, `tests/test_situation_catalog.gd`, `tests/test_situation_definition.gd` (nuevo) y este cierre documental (`docs/DEVLOG.md`, `docs/PROJECT_STATE.md`).
+- Rama: `master`. `HEAD`: `e9c55f5 feat: support per-situation rival count with dynamic rival spawning` (T1, commiteado y empujado por el desarrollador).
+- Sin commitear en el worktree (T2, pendiente de validación y commit): `rival/rival.gd`, `main.gd`, `tests/test_rival.gd` (nuevo), `AGENTS.md` (nueva sección «Behavioral Purpose of New Mechanics») y este cierre documental (`docs/DEVLOG.md`, `docs/PROJECT_STATE.md`, `docs/ROADMAP.md`).
 
 ## Escenas y sistemas presentes
 
@@ -20,14 +19,14 @@ Auditoría: 2026-10-12. Describe lo inspeccionado en código; no sustituye una p
 | Cancha | `field/Field.tscn`, `field/field.gd` | Mitad ofensiva visual; geometría y regiones normalizadas expuestas. |
 | Jugador | `player/Player.tscn`, `player/player.gd` | `CharacterBody2D` con WASD y aceleración; sin colisiones físicas. |
 | Compañero | `teammate/Teammate.tscn`, `teammate/teammate.gd` | Escena propia (extraída de `main.tscn`); entidad posicional sin movimiento propio; origen del pase. |
-| Rival | `rival/Rival.tscn`, `rival/rival.gd` | Nodos instanciados dinámicamente por `main.gd`; cada uno se desplaza con `move_toward` hacia un objetivo que elige `main.gd` (jugador en OFF_BALL, pelota en PASS); todos comparten el mismo objetivo. |
+| Rival | `rival/Rival.tscn`, `rival/rival.gd` | Nodos instanciados dinámicamente por `main.gd`; cada uno tiene un rol: `PRESSURE` persigue al objetivo (jugador en OFF_BALL, pelota en PASS) y `COVERAGE` se mantiene a 150 px de la amenaza (punto medio entre jugador y pelota) pero del lado del arco rival (centro consultado a `Field`). Ambos se desplazan con `move_toward`. |
 | Pelota | `ball/Ball.tscn`, `ball/ball.gd` | Pase con desaceleración constante; contactos resueltos por distancia en `main.gd`. |
 | Evaluación | `situation_evaluator.gd` | Destino de pase con error aleatorio, asumiendo un rival; `quality` calculado sin consumir. |
-| Pruebas | `tests/` | Runner propio headless (`run_tests.gd`), aserciones mínimas y tests de evaluador y catálogo. Comando y reporte en `docs/TESTING.md`. |
+| Pruebas | `tests/` | Runner propio headless (`run_tests.gd`), aserciones mínimas y tests de evaluador, catálogo y rival. Comando y reporte en `docs/TESTING.md`. |
 
 ## Limitaciones verificadas
 
-- La cantidad de rivales ya es configurable por situación (`rival_count`), pero todos persiguen el mismo objetivo: los roles de presión/cobertura y la evaluación de pases contra todos los rivales siguen pendientes. Un solo compañero por situación.
+- La cantidad de rivales es configurable por situación (`rival_count`); desde T2 existen roles básicos (`PRESSURE` y `COVERAGE`, con asignación local en `main.gd`) y un `PASS_LANE` previsto pero sin implementar; todavía no hay configuración de roles por situación ni evaluación de pases contra todos los rivales. Un solo compañero por situación.
 - El compañero no se desplaza; el pase es automático al agotarse el temporizador.
 - Contactos por distancia, sin colisiones físicas ni rebotes.
 - El `quality` del evaluador no se consume; no hay evaluación separada de decisión, ejecución y resultado.
@@ -43,6 +42,7 @@ Confirmado por el desarrollador:
 
 Pendiente de confirmación:
 
+- T2 (roles de rivales, tras el ajuste de la cobertura): corrida de la suite (debería informar 41 comprobaciones, 0 fallas) y prueba manual con `rival_count = 2` temporal (un `PRESSURE` persigue al jugador; un `COVERAGE` se ubica entre la amenaza —jugador y pelota— y el arco).
 - Procedencia de la prueba manual descrita en la entrada «Corrección de advertencias en Ball» del DEVLOG (incluida en el commit `96a4826`, junto con el cambio en `ball/ball.gd`).
 
 Conocido y no bloqueante (decisión del desarrollador): un warning de colisión de `Player` durante la ejecución local.
