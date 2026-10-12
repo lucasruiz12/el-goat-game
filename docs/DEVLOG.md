@@ -1,5 +1,17 @@
 # Devlog
 
+## 2026-10-12 — Infraestructura mínima de pruebas automatizadas
+
+- `tests/run_tests.gd`: runner propio que extiende `SceneTree` y corre con Godot headless, sin frameworks; códigos de salida 0/1.
+- `tests/test_case.gd`: aserciones mínimas (check, aproximación, punto en rectángulo).
+- `tests/test_situation_evaluator.gd`: destino sin error = punto adelantado exacto; destino dentro de la zona segura con error extremo; calidad en [0, 1] y sensible a la distancia del rival. RNG sembrado para ser deterministas.
+- `tests/test_situation_catalog.gd`: identidad de cada situación, recorte de índices fuera de rango y fijado de los parámetros exactos de la Situación 1 (protege el equilibrio actual).
+- `tests/run_tests.ps1`: comando corto con ruta de Godot por parámetro o variable `GODOT`, propagación de código de salida (0/1/2).
+- `docs/TESTING.md`: requisitos, comando, códigos de salida, formato de reporte y alcance.
+- `AGENTS.md`: obligación de informar pruebas ejecutadas, fallidas, no ejecutadas y validaciones manuales pendientes.
+
+Sin cambios en código de juego. La infraestructura todavía no se ejecutó: pendiente la primera corrida local con Godot 4.7.2 (no hay binario ejecutable en la máquina del asistente).
+
 ## 2026-10-12 — Selector convertido en laboratorio de situaciones
 
 - `level_select` ofrece una entrada por situación disponible (hoy: «Desmarque con presión»), sin candados ni bloqueos. La selección sigue guardándose en `GameProgress` como nivel actual en base 1: no se borraron ni reiniciaron datos existentes.

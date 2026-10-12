@@ -28,6 +28,8 @@ Resistencia y Velocidad son posibilidades futuras; no hay compromiso de implemen
 3. Definir una evaluación de situación reemplazable que separe calidad de decisión, ejecución del pase y resultado.
 4. Añadir una primera situación adicional solo después de validar que el loop actual es entendible y divertido.
 5. Diseñar la interfaz mínima de **Arrancar partido** y el contrato entre situaciones y marcador, sin implementar todavía la simulación completa.
+6. Ejecutar `.\tests\run_tests.ps1` la primera vez y después de cada lote (formato de reporte en `docs/TESTING.md`).
+7. Comportamiento colectivo base (propuesto, pendiente de aprobación): rivales en colección con conteo por situación; después, roles presión/cobertura y desplazamiento corto del poseedor.
 
 ## Propuestas, no decisiones
 

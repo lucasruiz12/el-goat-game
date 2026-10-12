@@ -1,0 +1,1 @@
+Retomamos EL GOAT. Leé AGENTS.md, docs/ROADMAP.md, docs/PROJECT_STATE.md y la última entrada de docs/DEVLOG.md. Contrastá lo documentado con git status y git log. Resumí el estado actual, las decisiones vigentes, las tareas aprobadas, las pendientes y el próximo paso. No modifiques archivos hasta que confirme que el resumen es correcto.

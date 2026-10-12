@@ -165,6 +165,13 @@ When introducing meaningful tests, briefly explain what behavior they protect.
 
 The architecture should avoid unnecessarily preventing future QA automation, but no QA automation framework should be introduced prematurely.
 
+After completing a task, report the test status explicitly:
+
+- tests executed and their result;
+- tests that failed, including the relevant output;
+- tests not executed in the assistant's environment, with the reason;
+- manual validations still pending in the game.
+
 ---
 
 ## Localization
