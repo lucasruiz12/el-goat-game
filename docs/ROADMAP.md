@@ -29,7 +29,7 @@ Resistencia y Velocidad son posibilidades futuras; no hay compromiso de implemen
 4. Añadir una primera situación adicional solo después de validar que el loop actual es entendible y divertido.
 5. Diseñar la interfaz mínima de **Arrancar partido** y el contrato entre situaciones y marcador, sin implementar todavía la simulación completa.
 6. Ejecutar `.\tests\run_tests.ps1` la primera vez y después de cada lote (formato de reporte en `docs/TESTING.md`).
-7. Comportamiento colectivo base (propuesto, pendiente de aprobación): rivales en colección con conteo por situación; después, roles presión/cobertura y desplazamiento corto del poseedor.
+7. Comportamiento colectivo base: T1 (rivales en colección con conteo por situación) implementado y validado por el desarrollador (28 comprobaciones, 0 fallas; prueba manual con 1, 2 y 6 rivales), todavía sin commit. Siguen pendientes los roles de presión/cobertura y el desplazamiento corto del poseedor.
 
 ## Propuestas, no decisiones
 

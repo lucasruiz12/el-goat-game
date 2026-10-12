@@ -29,6 +29,7 @@ extends Resource
 @export var ball_outside_grace_duration := 0.5
 
 @export_category("Rival")
+@export var rival_count := 1
 @export var rival_speed := 115.0
 @export var minimum_initial_rival_distance := 150.0
 

@@ -1,9 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://l6t7e2jk76el"]
+[gd_scene load_steps=6 format=3 uid="uid://l6t7e2jk76el"]
 
 [ext_resource type="PackedScene" path="res://player/Player.tscn" id="1_player"]
 [ext_resource type="Script" uid="uid://cihh5v0cyh5tt" path="res://main.gd" id="2_main"]
 [ext_resource type="PackedScene" path="res://field/Field.tscn" id="3_field"]
-[ext_resource type="PackedScene" path="res://rival/Rival.tscn" id="4_rival"]
 [ext_resource type="PackedScene" path="res://ball/Ball.tscn" id="5_ball"]
 [ext_resource type="PackedScene" path="res://teammate/Teammate.tscn" id="6_teammate"]
 
@@ -17,8 +16,6 @@ position = Vector2(640, 360)
 
 [node name="Teammate" parent="." instance=ExtResource("6_teammate")]
 position = Vector2(560, 450)
-
-[node name="Rival" parent="." instance=ExtResource("4_rival")]
 
 [node name="Ball" parent="." instance=ExtResource("5_ball")]
 

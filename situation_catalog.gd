@@ -35,6 +35,7 @@ static func _build_desmarque_presion() -> SituationDefinition:
 	situation.maximum_pass_error = 80.0
 	situation.ball_contact_distance = 25.0
 	situation.ball_outside_grace_duration = 0.5
+	situation.rival_count = 1
 	situation.rival_speed = 115.0
 	situation.minimum_initial_rival_distance = 150.0
 	situation.player_start_region = Rect2(0.35, 0.75, 0.30, 0.16)

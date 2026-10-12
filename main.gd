@@ -3,6 +3,7 @@ extends Node2D
 const FieldScript = preload("res://field/field.gd")
 const BallScript = preload("res://ball/ball.gd")
 const RivalScript = preload("res://rival/rival.gd")
+const RivalScene = preload("res://rival/Rival.tscn")
 const TeammateScript = preload("res://teammate/teammate.gd")
 const SituationEvaluatorScript = preload("res://situation_evaluator.gd")
 
@@ -28,6 +29,7 @@ var maximum_pass_error: float
 var ball_contact_distance: float
 var ball_outside_grace_duration: float
 var rival_speed: float
+var rival_count: int
 var minimum_initial_rival_distance: float
 var player_start_region: Rect2
 var teammate_start_region: Rect2
@@ -41,11 +43,11 @@ const FAILURE_COLOR := Color(1.0, 0.35, 0.3)
 @onready var player: CharacterBody2D = $Player
 @onready var player_visual: Polygon2D = $Player/Visual
 @onready var teammate: TeammateScript = $Teammate
-@onready var rival: RivalScript = $Rival
 @onready var ball: BallScript = $Ball
 @onready var off_ball_timer: ProgressBar = $Hud/OffBallTimer
 @onready var level_complete_label: Label = $Hud/LevelCompleteLabel
 
+var rivals: Array[RivalScript] = []
 var evaluator: SituationEvaluatorScript = SituationEvaluatorScript.new()
 var random_number_generator := RandomNumberGenerator.new()
 var remaining_time := 0.0
@@ -57,6 +59,7 @@ func _ready() -> void:
 	random_number_generator.randomize()
 	ball.pass_finished.connect(_on_ball_pass_finished)
 	apply_selected_situation()
+	spawn_rivals()
 	off_ball_timer.max_value = off_ball_duration
 	start_situation()
 
@@ -76,10 +79,23 @@ func apply_selected_situation() -> void:
 	ball_contact_distance = situation.ball_contact_distance
 	ball_outside_grace_duration = situation.ball_outside_grace_duration
 	rival_speed = situation.rival_speed
+	rival_count = situation.rival_count
 	minimum_initial_rival_distance = situation.minimum_initial_rival_distance
 	player_start_region = situation.player_start_region
 	teammate_start_region = situation.teammate_start_region
 	rival_start_region = situation.rival_start_region
+
+
+func spawn_rivals() -> void:
+	# Los rivales se crean una sola vez por escena; cada reinicio de situación
+	# solo los reubica. El evaluador todavía asume un solo rival, así que
+	# garantizamos al menos una unidad aunque una situación pida 0.
+	var amount := maxi(rival_count, 1)
+
+	for _index in amount:
+		var rival: RivalScript = RivalScene.instantiate()
+		add_child(rival)
+		rivals.append(rival)
 
 
 func _process(delta: float) -> void:
@@ -115,11 +131,13 @@ func update_off_ball_phase(delta: float) -> void:
 
 
 func start_pass() -> void:
+	# El evaluador todavía modela un solo rival (su firma recibe una posición):
+	# se usa al primero de la colección.
 	var evaluation := evaluator.evaluate_pass_target(
 		player.global_position,
 		player.velocity,
 		teammate.global_position,
-		rival.global_position,
+		rivals[0].global_position,
 		field.get_field_rect(),
 		teammate_pass_precision,
 		pass_lead_distance,
@@ -146,9 +164,17 @@ func update_pass_phase(delta: float) -> void:
 		finish_situation(true)
 		return
 
-	if ball.global_position.distance_to(rival.global_position) <= ball_contact_distance:
+	if has_rival_ball_contact():
 		finish_situation(false)
 		return
+
+
+func has_rival_ball_contact() -> bool:
+	for rival in rivals:
+		if ball.global_position.distance_to(rival.global_position) <= ball_contact_distance:
+			return true
+
+	return false
 
 
 func update_ball_outside_timer(delta: float) -> void:
@@ -163,18 +189,21 @@ func update_ball_outside_timer(delta: float) -> void:
 
 
 func apply_rival_pressure(target_position: Vector2, delta: float) -> void:
-	rival.apply_pressure(target_position, rival_speed, delta)
+	for rival in rivals:
+		rival.apply_pressure(target_position, rival_speed, delta)
 
 
 func place_initial_positions() -> void:
 	player.global_position = random_position_in_region(player_start_region)
 	teammate.global_position = random_position_in_region(teammate_start_region)
-	rival.global_position = random_position_in_region(rival_start_region)
 
-	var attempts := 0
-	while rival.global_position.distance_to(player.global_position) < minimum_initial_rival_distance and attempts < 8:
+	for rival in rivals:
 		rival.global_position = random_position_in_region(rival_start_region)
-		attempts += 1
+
+		var attempts := 0
+		while rival.global_position.distance_to(player.global_position) < minimum_initial_rival_distance and attempts < 8:
+			rival.global_position = random_position_in_region(rival_start_region)
+			attempts += 1
 
 
 func random_position_in_region(region: Rect2) -> Vector2:
