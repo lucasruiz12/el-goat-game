@@ -1,62 +1,50 @@
 extends Control
 
-## Level Select presenta los niveles disponibles y decide a qué escena entrar.
-## También refleja visualmente el progreso: un nivel completado muestra ✓,
-## uno desbloqueado queda disponible sin candado y uno bloqueado mantiene 🔒.
+## LevelSelect presenta el laboratorio de situaciones: una entrada por
+## situación disponible, sin bloqueos de progresión. Elegir una entrada guarda
+## la selección en GameProgress y abre la escena Main, que se configura con la
+## SituationDefinition correspondiente. Los botones se crean desde el catálogo,
+## así que una situación futura aparece sola sin tocar esta escena.
 
+const MAIN_SCENE_PATH := "res://main.tscn"
+const HOME_SCENE_PATH := "res://home/Home.tscn"
+const SITUATION_BUTTON_FONT_SIZE := 24
 
-@onready var level_1_button: Button = $Level1Button
-@onready var level_2_button: Button = $Level2Button
-@onready var level_3_button: Button = $Level3Button
-@onready var level_4_button: Button = $Level4Button
+@onready var situations_box: VBoxContainer = $SituationsBox
 
 
 func _ready() -> void:
-	update_level_buttons()
+	populate_situation_buttons()
 
 
-func update_level_buttons() -> void:
-	var max_unlocked_level := GameProgress.get_max_unlocked_level()
+func populate_situation_buttons() -> void:
+	var situations := SituationCatalog.get_all()
 	var max_completed_level := GameProgress.get_max_completed_level()
 
-	update_level_button(level_1_button, 1, max_unlocked_level, max_completed_level)
-	update_level_button(level_2_button, 2, max_unlocked_level, max_completed_level)
-	update_level_button(level_3_button, 3, max_unlocked_level, max_completed_level)
-	update_level_button(level_4_button, 4, max_unlocked_level, max_completed_level)
+	for index in situations.size():
+		var situation := situations[index]
+		var is_completed := index + 1 <= max_completed_level
+
+		var button := Button.new()
+		button.text = build_button_text(situation.title, is_completed)
+		button.add_theme_font_size_override("font_size", SITUATION_BUTTON_FONT_SIZE)
+		button.pressed.connect(start_situation.bind(index))
+		situations_box.add_child(button)
 
 
-func update_level_button(
-	button: Button,
-	level: int,
-	max_unlocked_level: int,
-	max_completed_level: int,
-) -> void:
-	button.disabled = level > max_unlocked_level
+func build_button_text(title: String, is_completed: bool) -> String:
+	if is_completed:
+		return "%s ✓" % title
 
-	if level <= max_completed_level:
-		button.text = "NIVEL %d ✓" % level
-	elif level <= max_unlocked_level:
-		button.text = "NIVEL %d" % level
-	else:
-		button.text = "NIVEL %d 🔒" % level
+	return title
 
 
-func _on_level_1_pressed() -> void:
-	start_level(1)
-
-
-func _on_level_2_pressed() -> void:
-	start_level(2)
-
-
-func _on_level_3_pressed() -> void:
-	start_level(3)
+func start_situation(index: int) -> void:
+	# El nivel guardado sigue siendo 1-based: el dato escrito por la progresión
+	# anterior sigue siendo válido y no hace falta migrar ni borrar nada.
+	GameProgress.set_current_level(index + 1)
+	get_tree().change_scene_to_file(MAIN_SCENE_PATH)
 
 
 func _on_back_pressed() -> void:
-	get_tree().change_scene_to_file("res://home/Home.tscn")
-
-
-func start_level(level: int) -> void:
-	GameProgress.set_current_level(level)
-	get_tree().change_scene_to_file("res://main.tscn")
+	get_tree().change_scene_to_file(HOME_SCENE_PATH)

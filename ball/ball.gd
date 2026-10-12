@@ -52,17 +52,17 @@ func start_pass(origin: Vector2, target: Vector2, pass_speed: float) -> void:
 	visible = true
 
 
-func reset_at(position: Vector2) -> void:
-	global_position = position
-	destination = position
+func reset_at(target_position: Vector2) -> void:
+	global_position = target_position
+	destination = target_position
 	velocity = Vector2.ZERO
 	is_moving = false
 	visible = true
 
 
-func stop_at(position: Vector2) -> void:
-	global_position = position
-	destination = position
+func stop_at(target_position: Vector2) -> void:
+	global_position = target_position
+	destination = target_position
 	velocity = Vector2.ZERO
 	is_moving = false
 

@@ -31,7 +31,7 @@ If that happens, follow the explicit instruction and briefly point out the confl
 
 Then, in order:
 
-3. `GAME_DESIGN.md`
+3. `docs/FOOTBALL_DESIGN.md`
 4. Existing project architecture and conventions.
 5. Codex implementation preferences.
 
@@ -220,7 +220,7 @@ Keep commits focused and avoid mixing unrelated changes.
 
 Codex may suggest changes to it but must not modify it without approval.
 
-`GAME_DESIGN.md` contains game design decisions.
+`docs/FOOTBALL_DESIGN.md` contains game design decisions.
 
 Important gameplay rules and design decisions require human approval.
 

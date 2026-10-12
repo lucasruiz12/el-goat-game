@@ -4,6 +4,8 @@
 
 La cancha representa la mitad ofensiva: arco rival arriba y línea de mitad abajo. El laboratorio actual presenta una situación de desmarque con compañero, rival y pelota.
 
+El selector funciona como laboratorio de situaciones: ofrece una entrada por situación disponible, sin bloqueos de progresión. Cada entrada corresponde a una definición del catálogo (`SituationDefinition`), y Main se configura con esa definición al arrancar, de modo que una situación futura puede reutilizar la misma escena.
+
 Secuencia implementada leída en código:
 
 ```text

@@ -15,26 +15,22 @@ enum SituationState {
 	RESULT,
 }
 
-@export_category("Off-ball timing")
-@export var off_ball_duration := 2.0
-@export var restart_interval := 1.0
-
-@export_category("Pass")
-@export var ball_speed := 350.0
-@export_range(0.0, 1.0, 0.05) var teammate_pass_precision := 0.72
-@export var pass_lead_distance := 72.0
-@export var maximum_pass_error := 80.0
-@export var ball_contact_distance := 25.0
-@export var ball_outside_grace_duration := 0.5
-
-@export_category("Rival")
-@export var rival_speed := 115.0
-@export var minimum_initial_rival_distance := 150.0
-
-@export_category("Starting regions")
-@export var player_start_region := Rect2(0.35, 0.75, 0.30, 0.16)
-@export var teammate_start_region := Rect2(0.33, 0.55, 0.34, 0.17)
-@export var rival_start_region := Rect2(0.30, 0.18, 0.40, 0.28)
+## Parámetros de la situación actual. Main no tiene valores propios: los toma
+## de la SituationDefinition seleccionada (ver apply_selected_situation) para
+## que la configuración del laboratorio viva en un solo lugar.
+var off_ball_duration: float
+var restart_interval: float
+var ball_speed: float
+var teammate_pass_precision: float
+var pass_lead_distance: float
+var maximum_pass_error: float
+var ball_contact_distance: float
+var ball_outside_grace_duration: float
+var rival_speed: float
+var minimum_initial_rival_distance: float
+var player_start_region: Rect2
+var teammate_start_region: Rect2
+var rival_start_region: Rect2
 
 const PLAYER_COLOR := Color(0.2, 0.75, 1.0)
 const SUCCESS_COLOR := Color(0.3, 1.0, 0.5)
@@ -59,8 +55,30 @@ var situation_state := SituationState.RESULT
 func _ready() -> void:
 	random_number_generator.randomize()
 	ball.pass_finished.connect(_on_ball_pass_finished)
+	apply_selected_situation()
 	off_ball_timer.max_value = off_ball_duration
 	start_situation()
+
+
+func apply_selected_situation() -> void:
+	# GameProgress guarda el nivel en base 1 por compatibilidad con el progreso
+	# previo; el catálogo se indexa desde cero y get_by_index recorta valores
+	# fuera de rango para que un save antiguo no rompa el arranque.
+	var situation := SituationCatalog.get_by_index(GameProgress.get_current_level() - 1)
+
+	off_ball_duration = situation.off_ball_duration
+	restart_interval = situation.restart_interval
+	ball_speed = situation.ball_speed
+	teammate_pass_precision = situation.teammate_pass_precision
+	pass_lead_distance = situation.pass_lead_distance
+	maximum_pass_error = situation.maximum_pass_error
+	ball_contact_distance = situation.ball_contact_distance
+	ball_outside_grace_duration = situation.ball_outside_grace_duration
+	rival_speed = situation.rival_speed
+	minimum_initial_rival_distance = situation.minimum_initial_rival_distance
+	player_start_region = situation.player_start_region
+	teammate_start_region = situation.teammate_start_region
+	rival_start_region = situation.rival_start_region
 
 
 func _process(delta: float) -> void:
