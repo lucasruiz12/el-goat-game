@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://l6t7e2jk76el"]
+[gd_scene load_steps=7 format=3 uid="uid://l6t7e2jk76el"]
 
 [ext_resource type="PackedScene" path="res://player/Player.tscn" id="1_player"]
 [ext_resource type="Script" uid="uid://cihh5v0cyh5tt" path="res://main.gd" id="2_main"]
 [ext_resource type="PackedScene" path="res://field/Field.tscn" id="3_field"]
 [ext_resource type="PackedScene" path="res://rival/Rival.tscn" id="4_rival"]
 [ext_resource type="PackedScene" path="res://ball/Ball.tscn" id="5_ball"]
+[ext_resource type="PackedScene" path="res://teammate/Teammate.tscn" id="6_teammate"]
 
 [node name="Node2D" type="Node2D" unique_id=1630127435]
 script = ExtResource("2_main")
@@ -14,10 +15,8 @@ script = ExtResource("2_main")
 [node name="Player" parent="." unique_id=2050190805 instance=ExtResource("1_player")]
 position = Vector2(640, 360)
 
-[node name="Teammate" type="Polygon2D" parent="." unique_id=630086214]
+[node name="Teammate" parent="." instance=ExtResource("6_teammate")]
 position = Vector2(560, 450)
-color = Color(0.95, 0.35, 0.3, 1)
-polygon = PackedVector2Array(-14, -14, 14, -14, 14, 14, -14, 14)
 
 [node name="Rival" parent="." instance=ExtResource("4_rival")]
 

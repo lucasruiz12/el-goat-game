@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://teammate/teammate.gd" id="1_teammate"]
+
+[node name="Teammate" type="Node2D"]
+script = ExtResource("1_teammate")
+
+[node name="Visual" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-14, -14, 14, -14, 14, 14, -14, 14)
+color = Color(0.95, 0.35, 0.3, 1)

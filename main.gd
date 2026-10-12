@@ -3,6 +3,7 @@ extends Node2D
 const FieldScript = preload("res://field/field.gd")
 const BallScript = preload("res://ball/ball.gd")
 const RivalScript = preload("res://rival/rival.gd")
+const TeammateScript = preload("res://teammate/teammate.gd")
 const SituationEvaluatorScript = preload("res://situation_evaluator.gd")
 
 ## Main compone la situacion jugable y avanza sus estados: desmarque, pase y
@@ -39,7 +40,7 @@ const FAILURE_COLOR := Color(1.0, 0.35, 0.3)
 @onready var field: FieldScript = $Field
 @onready var player: CharacterBody2D = $Player
 @onready var player_visual: Polygon2D = $Player/Visual
-@onready var teammate: Polygon2D = $Teammate
+@onready var teammate: TeammateScript = $Teammate
 @onready var rival: RivalScript = $Rival
 @onready var ball: BallScript = $Ball
 @onready var off_ball_timer: ProgressBar = $Hud/OffBallTimer
