@@ -1,5 +1,21 @@
 # Devlog
 
+## 2026-10-12 — Punto de reanudación previo a compactación manual
+
+- T5 (calidad del pase integrada en el resultado) fue dado por finalizado y aceptado por el desarrollador; el commit y el push quedan a su cargo. El worktree contiene T5 completo sin commitear: `main.gd`, `situation_definition.gd`, `situation_catalog.gd`, `tests/test_main_pass_resolution.gd` (nuevo, con `.uid`), `tests/test_situation_definition.gd`, `tests/test_situation_catalog.gd` y esta documentación.
+- Confirmado por el desarrollador al cerrar T5: la suite tras el lote la ejecutó él y confirmó que todo funcionó, y validó T5 manualmente. Sigue sin reportar: validación manual de T2 y T3. Corregido durante T5: typo `DEBAITED`→`DEVIATED` en `main.gd` y en el test de outcomes (el error del `const` dict en el LSP era cascada de ese typo; `const` con claves de enum es sintaxis válida).
+- Próximo objetivo acordado: **sesión de diseño centrada en la experiencia jugable y el feedback visual**, no otro lote de infraestructura. Cualquier lote posterior requiere autorización explícita del desarrollador.
+- Para retomar: `docs/PROJECT_STATE.md` (estado y pendientes), esta entrada y la de T5 (decisiones y criterios de aceptación), `docs/TESTING.md` (comandos) y `AGENTS.md` (reglas: commits solo con aprobación, informar estado de pruebas, sin frameworks de QA).
+
+## 2026-10-12 — T5: la calidad del pase influye en el resultado
+
+- `start_pass()` evalúa la línea con `evaluate_pass_lane()` (compañero → jugador, contra todas las posiciones rivales del instante) y modula la precisión efectiva mediante `combine_precision_with_lane()`: con la línea despejada el pase sale igual que antes; con rivales sobre la línea la desviación crece de forma gradual y acotada (`maximum_pass_error` sigue siendo el techo). La desviación se aplica en el mismo `evaluate_pass_target` existente, sin duplicar sistemas.
+- Resolución del pase con tres outcomes excluyentes (`PassOutcome`): `PRECISE` (el jugador recibe la pelota), `DEVIATED` (la pelota sale de la cancha y se agota la gracia) e `INTERCEPTED` (un rival queda dentro de `interception_distance`, nuevo parámetro por situación, 15 px). El contacto rival de 25 px ya no falla automáticamente: entre 15 y 25 px el rival acompaña la jugada sin resolverla — la proximidad por sí sola no intercepta.
+- Feedback: el label del HUD muestra el mensaje del outcome («¡PASE PRECISO!», «PASE DESVIADO», «PASE INTERCEPTADO») en todos los resultados y se oculta al reiniciar. Un solo mensaje por outcome, sin resultados contradictorios. Decisión de diseño: el mensaje refleja la resolución real, no la intención — un pase desviado que el jugador alcanza igual termina en `PRECISE`.
+- Pruebas: `tests/test_main_pass_resolution.gd` cubre funciones puras de `main.gd` (composición de precisión, umbral de intercepción, distinción de mensajes y éxito exclusivo) y definición/catálogo fijan `interception_distance` (suite en 76 comprobaciones). Corrida de la suite y validación manual de T5 confirmadas por el desarrollador al cerrar el lote.
+- Criterios de aceptación de T5, registrados para el cierre: la calidad de T4 influye realmente en el pase; la posición de los rivales puede cambiar desviación y resultado; la intercepción exige el umbral definido sobre la trayectoria real; el feedback refleja lo ocurrido y el flujo de fases y reinicios sigue funcionando; la Situación 1 conserva 1 rival, compañero estático y `holder_shift_distance = 0.0`.
+- Una vez validado y cerrado T5, el siguiente objetivo es una **sesión de diseño centrada en la experiencia jugable y el feedback visual**, no otro lote de infraestructura técnica.
+
 ## 2026-10-12 — T4: evaluación de líneas de pase contra múltiples rivales
 
 - `situation_evaluator.gd` incorpora `evaluate_pass_lane(origin, target, rival_positions)`: mide la distancia de cada rival al **segmento completo** del pase (con `Geometry2D.get_closest_point_to_segment`, no solo a los extremos) y devuelve la calidad de la línea según el rival más cercano, con la misma escala de 220 px que ya usa el evaluador (`LANE_CLEARNESS_SCALE`). Determinista, sin RNG. Resultado: `lane_quality` en [0, 1] (1 con línea libre o sin rivales) y `closest_rival_distance` (INF sin rivales).

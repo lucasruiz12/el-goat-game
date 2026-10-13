@@ -53,6 +53,7 @@ func test_desmarque_situation_keeps_situation_1_parameters() -> void:
 	check_approx(situation.maximum_pass_error, 80.0, "error máximo del pase")
 	check_approx(situation.ball_contact_distance, 25.0, "distancia de contacto con la pelota")
 	check_approx(situation.ball_outside_grace_duration, 0.5, "gracia de pelota fuera")
+	check_approx(situation.interception_distance, 15.0, "umbral de intercepción")
 	check_approx(situation.rival_speed, 115.0, "velocidad del rival")
 	check_approx(situation.minimum_initial_rival_distance, 150.0, "distancia mínima inicial del rival")
 	check(situation.rival_count == 1, "cantidad de rivales = 1 (obtenido %d)" % situation.rival_count)

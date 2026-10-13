@@ -34,6 +34,7 @@ static func _build_desmarque_presion() -> SituationDefinition:
 	situation.pass_lead_distance = 72.0
 	situation.maximum_pass_error = 80.0
 	situation.ball_contact_distance = 25.0
+	situation.interception_distance = 15.0
 	situation.ball_outside_grace_duration = 0.5
 	situation.holder_shift_distance = 0.0
 	situation.holder_shift_speed = 60.0

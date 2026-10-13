@@ -17,6 +17,20 @@ enum SituationState {
 	RESULT,
 }
 
+## Resultados posibles del pase (T5). Cada uno tiene un único mensaje: el
+## feedback refleja lo que realmente ocurrió y nunca dos resoluciones a la vez.
+enum PassOutcome {
+	PRECISE,
+	DEVIATED,
+	INTERCEPTED,
+}
+
+const PASS_OUTCOME_MESSAGES := {
+	PassOutcome.PRECISE: "¡PASE PRECISO!",
+	PassOutcome.DEVIATED: "PASE DESVIADO",
+	PassOutcome.INTERCEPTED: "PASE INTERCEPTADO",
+}
+
 ## Parámetros de la situación actual. Main no tiene valores propios: los toma
 ## de la SituationDefinition seleccionada (ver apply_selected_situation) para
 ## que la configuración del laboratorio viva en un solo lugar.
@@ -27,6 +41,7 @@ var teammate_pass_precision: float
 var pass_lead_distance: float
 var maximum_pass_error: float
 var ball_contact_distance: float
+var interception_distance: float
 var ball_outside_grace_duration: float
 var holder_shift_distance: float
 var holder_shift_speed: float
@@ -80,6 +95,7 @@ func apply_selected_situation() -> void:
 	pass_lead_distance = situation.pass_lead_distance
 	maximum_pass_error = situation.maximum_pass_error
 	ball_contact_distance = situation.ball_contact_distance
+	interception_distance = situation.interception_distance
 	ball_outside_grace_duration = situation.ball_outside_grace_duration
 	holder_shift_distance = situation.holder_shift_distance
 	holder_shift_speed = situation.holder_shift_speed
@@ -125,6 +141,7 @@ func start_situation() -> void:
 	off_ball_timer.max_value = off_ball_duration
 	off_ball_timer.value = remaining_time
 	off_ball_timer.visible = true
+	level_complete_label.visible = false
 	ball_outside_time_remaining = 0.0
 	situation_state = SituationState.OFF_BALL
 
@@ -152,6 +169,20 @@ func update_holder_position(delta: float) -> void:
 
 
 func start_pass() -> void:
+	# T5: la calidad de la línea contra todos los rivales modula la precisión
+	# efectiva del pase. Con la línea despejada el pase sale igual que antes;
+	# con rivales sobre ella, la desviación crece de forma gradual y acotada
+	# por maximum_pass_error.
+	var lane_result: Dictionary = evaluator.evaluate_pass_lane(
+		teammate.global_position,
+		player.global_position,
+		get_rival_positions(),
+	)
+	var effective_precision := combine_precision_with_lane(
+		teammate_pass_precision,
+		lane_result.lane_quality,
+	)
+
 	# El evaluador todavía modela un solo rival (su firma recibe una posición):
 	# se usa al primero de la colección.
 	var evaluation := evaluator.evaluate_pass_target(
@@ -160,7 +191,7 @@ func start_pass() -> void:
 		teammate.global_position,
 		rivals[0].global_position,
 		field.get_field_rect(),
-		teammate_pass_precision,
+		effective_precision,
 		pass_lead_distance,
 		maximum_pass_error,
 		random_number_generator,
@@ -182,20 +213,29 @@ func update_pass_phase(delta: float) -> void:
 	apply_rival_pressure(ball.global_position, delta)
 
 	if ball.global_position.distance_to(player.global_position) <= ball_contact_distance:
-		finish_situation(true)
+		finish_situation(PassOutcome.PRECISE)
 		return
 
-	if has_rival_ball_contact():
-		finish_situation(false)
+	if is_ball_intercepted():
+		finish_situation(PassOutcome.INTERCEPTED)
 		return
 
 
-func has_rival_ball_contact() -> bool:
+func is_ball_intercepted() -> bool:
+	return is_ball_intercepted_at(
+		ball.global_position,
+		get_rival_positions(),
+		interception_distance,
+	)
+
+
+func get_rival_positions() -> Array[Vector2]:
+	var positions: Array[Vector2] = []
+
 	for rival in rivals:
-		if ball.global_position.distance_to(rival.global_position) <= ball_contact_distance:
-			return true
+		positions.append(rival.global_position)
 
-	return false
+	return positions
 
 
 func update_ball_outside_timer(delta: float) -> void:
@@ -206,7 +246,7 @@ func update_ball_outside_timer(delta: float) -> void:
 	ball_outside_time_remaining = maxf(ball_outside_time_remaining - delta, 0.0)
 
 	if is_zero_approx(ball_outside_time_remaining):
-		finish_situation(false)
+		finish_situation(PassOutcome.DEVIATED)
 
 
 func apply_rival_pressure(target_position: Vector2, delta: float) -> void:
@@ -255,18 +295,19 @@ func _on_ball_pass_finished() -> void:
 	pass
 
 
-func finish_situation(succeeded: bool) -> void:
+func finish_situation(outcome: PassOutcome) -> void:
 	if situation_state == SituationState.RESULT:
 		return
 
 	situation_state = SituationState.RESULT
 	player.set_physics_process(false)
 	player.velocity = Vector2.ZERO
+	level_complete_label.text = get_pass_outcome_message(outcome)
+	level_complete_label.visible = true
 
-	if succeeded:
+	if is_pass_successful(outcome):
 		ball.stop_at(player.global_position)
 		player_visual.color = SUCCESS_COLOR
-		level_complete_label.visible = true
 
 		GameProgress.complete_current_level()
 
@@ -278,3 +319,34 @@ func finish_situation(succeeded: bool) -> void:
 
 	await get_tree().create_timer(restart_interval).timeout
 	start_situation()
+
+
+## T5: une la calidad de la línea (evaluate_pass_lane) con la precisión del
+## pase. Con la línea despejada (calidad 1) la precisión no cambia; con la
+## línea comprometida escala hacia cero de forma gradual. Queda acotada a
+## [0, 1] para no alterar los límites del error ya existentes.
+static func combine_precision_with_lane(pass_precision: float, lane_quality: float) -> float:
+	return clampf(pass_precision * lane_quality, 0.0, 1.0)
+
+
+## T5: una intercepción exige que un rival esté dentro de interception_distance
+## de la trayectoria real de la pelota (su posición en este instante). Estar
+## cerca pero fuera de ese umbral no intercepta automáticamente.
+static func is_ball_intercepted_at(
+	ball_position: Vector2,
+	rival_positions: Array[Vector2],
+	interception_range: float,
+) -> bool:
+	for rival_position in rival_positions:
+		if ball_position.distance_to(rival_position) <= interception_range:
+			return true
+
+	return false
+
+
+static func get_pass_outcome_message(outcome: PassOutcome) -> String:
+	return PASS_OUTCOME_MESSAGES[outcome]
+
+
+static func is_pass_successful(outcome: PassOutcome) -> bool:
+	return outcome == PassOutcome.PRECISE

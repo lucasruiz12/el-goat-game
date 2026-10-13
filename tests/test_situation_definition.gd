@@ -23,3 +23,4 @@ func test_fresh_definition_defaults_to_static_holder() -> void:
 
 	check_approx(definition.holder_shift_distance, 0.0, "una definición nueva tiene holder_shift_distance = 0 (poseedor estático)")
 	check_approx(definition.holder_shift_speed, 60.0, "una definición nueva tiene holder_shift_speed = 60")
+	check_approx(definition.interception_distance, 15.0, "una definición nueva tiene interception_distance = 15")

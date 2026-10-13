@@ -26,6 +26,7 @@ extends Resource
 @export var pass_lead_distance := 72.0
 @export var maximum_pass_error := 80.0
 @export var ball_contact_distance := 25.0
+@export var interception_distance := 15.0
 @export var ball_outside_grace_duration := 0.5
 
 @export_category("Teammate")
