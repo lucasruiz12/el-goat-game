@@ -6,6 +6,7 @@ extends "res://tests/test_case.gd"
 
 func run() -> void:
 	test_fresh_definition_defaults_to_one_rival()
+	test_fresh_definition_defaults_to_static_holder()
 
 
 func test_fresh_definition_defaults_to_one_rival() -> void:
@@ -15,3 +16,10 @@ func test_fresh_definition_defaults_to_one_rival() -> void:
 		definition.rival_count == 1,
 		"una definición nueva tiene rival_count = 1 (obtenido %d)" % definition.rival_count
 	)
+
+
+func test_fresh_definition_defaults_to_static_holder() -> void:
+	var definition := SituationDefinition.new()
+
+	check_approx(definition.holder_shift_distance, 0.0, "una definición nueva tiene holder_shift_distance = 0 (poseedor estático)")
+	check_approx(definition.holder_shift_speed, 60.0, "una definición nueva tiene holder_shift_speed = 60")

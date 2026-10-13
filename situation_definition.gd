@@ -28,6 +28,10 @@ extends Resource
 @export var ball_contact_distance := 25.0
 @export var ball_outside_grace_duration := 0.5
 
+@export_category("Teammate")
+@export var holder_shift_distance := 0.0
+@export var holder_shift_speed := 60.0
+
 @export_category("Rival")
 @export var rival_count := 1
 @export var rival_speed := 115.0

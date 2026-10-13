@@ -28,6 +28,8 @@ var pass_lead_distance: float
 var maximum_pass_error: float
 var ball_contact_distance: float
 var ball_outside_grace_duration: float
+var holder_shift_distance: float
+var holder_shift_speed: float
 var rival_speed: float
 var rival_count: int
 var minimum_initial_rival_distance: float
@@ -52,6 +54,7 @@ var evaluator: SituationEvaluatorScript = SituationEvaluatorScript.new()
 var random_number_generator := RandomNumberGenerator.new()
 var remaining_time := 0.0
 var ball_outside_time_remaining := 0.0
+var holder_start_position := Vector2.ZERO
 var situation_state := SituationState.RESULT
 
 
@@ -78,6 +81,8 @@ func apply_selected_situation() -> void:
 	maximum_pass_error = situation.maximum_pass_error
 	ball_contact_distance = situation.ball_contact_distance
 	ball_outside_grace_duration = situation.ball_outside_grace_duration
+	holder_shift_distance = situation.holder_shift_distance
+	holder_shift_speed = situation.holder_shift_speed
 	rival_speed = situation.rival_speed
 	rival_count = situation.rival_count
 	minimum_initial_rival_distance = situation.minimum_initial_rival_distance
@@ -111,6 +116,7 @@ func _process(delta: float) -> void:
 
 func start_situation() -> void:
 	place_initial_positions()
+	holder_start_position = teammate.global_position
 	ball.reset_at(teammate.global_position)
 	player.velocity = Vector2.ZERO
 	player.set_physics_process(true)
@@ -125,12 +131,24 @@ func start_situation() -> void:
 
 func update_off_ball_phase(delta: float) -> void:
 	apply_rival_pressure(player.global_position, delta)
+	update_holder_position(delta)
 
 	remaining_time = maxf(remaining_time - delta, 0.0)
 	off_ball_timer.value = remaining_time
 
 	if is_zero_approx(remaining_time):
 		start_pass()
+
+
+func update_holder_position(delta: float) -> void:
+	# El poseedor sale a apoyar hacia el jugador, pero sin alejarse más de
+	# holder_shift_distance de su posición inicial. Con distancia 0 el objetivo
+	# es su propia posición: no se mueve y el comportamiento es el anterior.
+	var shift_target := holder_start_position + (
+		player.global_position - holder_start_position
+	).limit_length(holder_shift_distance)
+
+	teammate.move_toward_target(shift_target, holder_shift_speed, delta)
 
 
 func start_pass() -> void:

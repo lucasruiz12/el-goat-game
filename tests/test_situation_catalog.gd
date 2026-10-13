@@ -56,6 +56,8 @@ func test_desmarque_situation_keeps_situation_1_parameters() -> void:
 	check_approx(situation.rival_speed, 115.0, "velocidad del rival")
 	check_approx(situation.minimum_initial_rival_distance, 150.0, "distancia mínima inicial del rival")
 	check(situation.rival_count == 1, "cantidad de rivales = 1 (obtenido %d)" % situation.rival_count)
+	check_approx(situation.holder_shift_distance, 0.0, "desplazamiento del poseedor = 0 (estático)")
+	check_approx(situation.holder_shift_speed, 60.0, "velocidad del desplazamiento del poseedor")
 	check(
 		situation.player_start_region == Rect2(0.35, 0.75, 0.30, 0.16),
 		"región inicial del jugador"

@@ -1,5 +1,12 @@
 # Devlog
 
+## 2026-10-12 — T3: desplazamiento configurable del poseedor
+
+- `SituationDefinition` incorpora la categoría «Teammate»: `holder_shift_distance` (por defecto 0.0, sin movimiento) y `holder_shift_speed` (60.0). «Desmarque con presión» los fija explícitamente en 0.0 y 60.0: la situación actual sigue con el compañero estático.
+- `teammate.gd` expone `move_toward_target()` con el mismo patrón de `Rival`.
+- `main.gd` actualiza el objetivo del poseedor solo durante OFF_BALL: sale a apoyar hacia el jugador sin alejarse más de `holder_shift_distance` de su posición inicial registrada al empezar la situación. El pase ya nacía de la posición actual del compañero (`ball.start_pass(teammate…)`), así que el apoyo se ejecuta desde donde esté. Con distancia 0 el objetivo es su propia posición: no se mueve y el comportamiento es idéntico al anterior.
+- Pruebas: defaults de la definición, parámetros fijados en el catálogo y movimiento del compañero (suite en 49 comprobaciones). Todavía sin ejecutar: pendiente la corrida local y la prueba manual (levantar `holder_shift_distance` temporalmente para ver el apoyo).
+
 ## 2026-10-12 — T2: roles de rivales (presión y cobertura)
 
 - `rival.gd` incorpora el enum `Role` (`PRESSURE`, `COVERAGE`) y `apply_coverage()`. Tras los ajustes pedidos por el desarrollador, `COVERAGE` defiende la zona entre la amenaza de la jugada —punto medio entre el jugador y la pelota— y el arco rival: se mantiene a `COVERAGE_DISTANCE` (150 px) de esa amenaza pero siempre del lado del arco (centro del arco consultado a `Field`), sin perseguir ni copiar el movimiento del jugador. `PRESSURE` conserva la persecución directa original. Queda anotado como rol futuro `PASS_LANE` (interceptar el pase compañero–jugador), sin implementar.
