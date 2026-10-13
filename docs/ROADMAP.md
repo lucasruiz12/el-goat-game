@@ -29,7 +29,7 @@ Resistencia y Velocidad son posibilidades futuras; no hay compromiso de implemen
 4. Añadir una primera situación adicional solo después de validar que el loop actual es entendible y divertido.
 5. Diseñar la interfaz mínima de **Arrancar partido** y el contrato entre situaciones y marcador, sin implementar todavía la simulación completa.
 6. Ejecutar `.\tests\run_tests.ps1` la primera vez y después de cada lote (formato de reporte en `docs/TESTING.md`).
-7. Comportamiento colectivo base: T1 (rivales en colección, commiteado y validado), T2 (roles `PRESSURE`/`COVERAGE` con asignación local; `COVERAGE` defiende hacia el arco según la amenaza de la jugada) y T3 (desplazamiento configurable del poseedor, `holder_shift_distance`, hoy en 0 = estático) implementados; T2 y T3 pendientes de validación del desarrollador. `PASS_LANE` queda como posible tercer rol futuro por considerar. Siguen pendientes la configuración de roles por situación, la línea de pase contra N rivales (T4) y la evaluación de pases contra todos los rivales.
+7. Comportamiento colectivo base: T1 (rivales en colección), T2 (roles `PRESSURE`/`COVERAGE`; `COVERAGE` defiende hacia el arco según la amenaza), T3 (desplazamiento configurable del poseedor, hoy en 0 = estático) commiteados, y T4 (`evaluate_pass_lane`, calidad de la línea de pase contra N rivales, todavía sin conectar a `main.gd`) implementado y pendiente de validación del desarrollador. `PASS_LANE` queda como posible rol futuro por considerar. Siguen pendientes la configuración de roles por situación y conectar la evaluación de línea a la decisión de pase.
 
 ## Propuestas, no decisiones
 

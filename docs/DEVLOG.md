@@ -1,5 +1,11 @@
 # Devlog
 
+## 2026-10-12 — T4: evaluación de líneas de pase contra múltiples rivales
+
+- `situation_evaluator.gd` incorpora `evaluate_pass_lane(origin, target, rival_positions)`: mide la distancia de cada rival al **segmento completo** del pase (con `Geometry2D.get_closest_point_to_segment`, no solo a los extremos) y devuelve la calidad de la línea según el rival más cercano, con la misma escala de 220 px que ya usa el evaluador (`LANE_CLEARNESS_SCALE`). Determinista, sin RNG. Resultado: `lane_quality` en [0, 1] (1 con línea libre o sin rivales) y `closest_rival_distance` (INF sin rivales).
+- `evaluate_pass_target` permanece intacto y el nuevo método todavía no se conecta a `main.gd`: este lote agrega y valida la lógica, sin cambiar el juego.
+- Pruebas: seis casos nuevos (línea libre, rival junto al segmento, al origen y al destino, varios rivales con mínimo gobernante y colección vacía; suite en 61 comprobaciones). Todavía sin ejecutar: pendiente la corrida local del desarrollador. No requiere validación manual: no hay cambio de comportamiento en el juego.
+
 ## 2026-10-12 — T3: desplazamiento configurable del poseedor
 
 - `SituationDefinition` incorpora la categoría «Teammate»: `holder_shift_distance` (por defecto 0.0, sin movimiento) y `holder_shift_speed` (60.0). «Desmarque con presión» los fija explícitamente en 0.0 y 60.0: la situación actual sigue con el compañero estático.

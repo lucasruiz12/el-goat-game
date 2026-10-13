@@ -5,6 +5,12 @@ extends RefCounted
 ## Combina separacion, profundidad hacia el arco y espacio respecto del rival en una
 ## regla pequena y explicable. El resultado es un Dictionary temporal para no fijar
 ## todavia una estructura de datos que una futura evaluacion tactica podria superar.
+## evaluate_pass_lane agrega la calidad de la línea de pase contra una colección de
+## rivales; todavía no se consume en el juego.
+
+## Misma escala que usa space_score en evaluate_pass_target: a partir de esta
+## distancia del rival, la línea se considera totalmente clara.
+const LANE_CLEARNESS_SCALE := 220.0
 
 func evaluate_pass_target(player_position: Vector2, player_velocity: Vector2, teammate_position: Vector2, rival_position: Vector2, field_rect: Rect2, pass_precision: float, lead_distance: float, maximum_pass_error: float, random_number_generator: RandomNumberGenerator) -> Dictionary:
 	var separation := player_position.distance_to(teammate_position)
@@ -29,6 +35,26 @@ func evaluate_pass_target(player_position: Vector2, player_velocity: Vector2, te
 	return {
 		"pass_target": target,
 		"quality": separation_score * 0.4 + space_score * 0.35 + depth_score * 0.25,
+	}
+
+
+## Evalúa la línea de pase entre origen y destino contra una colección de
+## rivales. Mide qué tan cerca pasa cada rival del segmento completo (no solo
+## de sus extremos) y devuelve la calidad según el rival más cercano. Es
+## determinista: no usa RNG ni toca evaluate_pass_target, que permanece intacto.
+## - lane_quality en [0, 1]: 0 con un rival sobre la línea; 1 con la línea
+##   libre o sin rivales (closest_rival_distance = INF en ese caso).
+## - closest_rival_distance: distancia del rival más cercano al segmento.
+func evaluate_pass_lane(origin: Vector2, target: Vector2, rival_positions: Array[Vector2]) -> Dictionary:
+	var closest_distance := INF
+
+	for rival_position in rival_positions:
+		var closest_point := Geometry2D.get_closest_point_to_segment(rival_position, origin, target)
+		closest_distance = minf(closest_distance, rival_position.distance_to(closest_point))
+
+	return {
+		"lane_quality": clampf(closest_distance / LANE_CLEARNESS_SCALE, 0.0, 1.0),
+		"closest_rival_distance": closest_distance,
 	}
 
 
