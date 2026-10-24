@@ -613,3 +613,70 @@ decidir la integración o un refactor.
 **Todavía no decidido:** distribuciones numéricas, fórmulas de
 evaluación, detalles de controles, criterios de selección y clubes, y
 gran parte del contenido narrativo/social.
+
+## Estado de implementación — cierre del 24/10/2026
+
+### Fase 1: modelo de datos del jugador — COMPLETADA
+
+Se implementaron los siguientes archivos:
+
+- `player_profile.gd`: modelo de perfil y validación de atributos.
+- `player_profile_catalog.gd`: catálogo estático de los cuatro perfiles aprobados.
+- `session_player.gd`: estado del jugador durante la sesión, validación de datos personales, copia de atributos y fórmula de velocidad prevista.
+
+Pruebas agregadas:
+
+- `tests/test_player_profile_catalog.gd`
+- `tests/test_session_player.gd`
+
+**Validación local confirmada:** Godot 4.7.2, 8 archivos de prueba, 174 comprobaciones y 0 fallas.
+
+Durante la validación se detectó una dependencia del caché de clases globales de Godot. Se corrigió utilizando `preload()` explícito para las referencias entre scripts nuevos, evitando depender de que el editor haya generado previamente el caché. La corrección quedó validada por la corrida local de 174 comprobaciones.
+
+Los cambios de esta fase deben quedar en el commit:
+
+`fix(tests): resolver scripts de perfil por preload en vez de class_name global`
+
+No incluir en ese commit `docs/CONTEXT_DESIGN_PLAN.md` ni otros archivos ajenos a la implementación, salvo decisión expresa.
+
+### Decisiones confirmadas
+
+- Los perfiles son fijos, no aleatorios, y suman 300 puntos.
+- Cada uno de los seis atributos se encuentra entre 1 y 100.
+- La sesión del jugador vive en memoria y no tiene persistencia en disco.
+- Los atributos se copian del catálogo al crear la sesión.
+- La fórmula de velocidad aprobada para la integración posterior es `150.0 + 1.8 * Velocidad`. Con Velocidad = 50, la velocidad máxima es 240 px/s.
+- En la primera integración, solo Velocidad tendrá efecto en el movimiento. Los demás atributos se almacenan sin efectos nuevos hasta que se diseñen sus mecánicas.
+- El pase automático del compañero no debe modificarse por el atributo Pase.
+- Los nombres de perfiles aprobados son Creador, Regateador, Finalizador y Equilibrado.
+
+### Fase 2: creador de jugadores — PENDIENTE
+
+Próximo objetivo autorizado, una vez cerrada formalmente la Fase 1:
+
+1. Mantener Home como primera escena.
+2. Al pulsar JUGAR, abrir el creador si todavía no existe una sesión de jugador.
+3. Solicitar nombre, apellido, dorsal (1–99) y perfil inicial.
+4. Permitir volver a Home antes de confirmar sin crear una sesión.
+5. Al confirmar, crear `SessionPlayer.current` y abrir el laboratorio.
+6. Si se vuelve a Home durante la misma sesión, conservar el jugador y permitir continuar sin recrearlo.
+7. Al reiniciar el proceso del juego, comenzar sin sesión y volver a mostrar el creador.
+
+La pantalla debe permitir reconocer y comparar los cuatro perfiles y sus atributos. No se deben inventar nuevos efectos de gameplay ni agregar persistencia.
+
+El flujo actual sigue siendo Home → Laboratorio: la interfaz del creador todavía no se ha implementado.
+
+### Fase 3: integración de Velocidad — PENDIENTE
+
+Integrar el atributo Velocidad en `player/player.gd`, conservando la velocidad actual de 240 px/s para el perfil Equilibrado. Mantener sin cambios la aceleración y desaceleración iniciales. Verificar el movimiento manualmente en Godot.
+
+### Fuera de alcance hasta nueva autorización
+
+- Efectos nuevos para Movimiento, Visión, Pase, Regate o Definición.
+- Ayudas visuales asociadas a Visión.
+- Eventos sociales, jornadas de pruebas, evaluación global y ofertas de clubes.
+- Persistencia del jugador y refactors generales.
+
+### Forma de trabajo
+
+Continuar por fases acotadas. Ejecutar las pruebas localmente y reportar su resultado real. No asumir que las pruebas pasan si no se ejecutaron. No hacer commits sin aprobación expresa y no avanzar a una fase posterior sin revisar el cierre de la anterior.
